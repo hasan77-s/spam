@@ -1,48 +1,298 @@
 <!DOCTYPE html>
-<html>
+<html lang="tr">
 <head>
-    <title>TERMINAL | AUTH-FLOODER</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Twilio SMS Gönderici</title>
     <style>
-        body { background: #000; color: #0f0; font-family: 'Courier New', monospace; text-align: center; margin: 0; padding: 20px; }
-        .panel { border: 2px solid #0f0; display: inline-block; padding: 30px; box-shadow: 0 0 15px #0f0; background: #050505; border-radius: 10px; }
-        input { background: #111; border: 1px solid #0f0; color: #0f0; padding: 12px; width: 250px; font-size: 16px; margin-bottom: 20px; outline: none; }
-        button { background: #0f0; color: #000; border: none; padding: 12px 30px; font-weight: bold; cursor: pointer; text-transform: uppercase; }
-        button:hover { background: #fff; box-shadow: 0 0 20px #fff; }
-        #log { margin-top: 20px; height: 150px; overflow-y: auto; text-align: left; font-size: 12px; border-top: 1px solid #333; padding-top: 10px; }
-        .red { color: #f00; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            width: 100%;
+            max-width: 450px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            color: #555;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s;
+            outline: none;
+        }
+
+        input:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        input::placeholder {
+            color: #aaa;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .message {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 14px;
+            display: none;
+            animation: slideIn 0.3s ease;
+        }
+
+        .message.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .message.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .message.show {
+            display: block;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 0.8s linear infinite;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .info-box {
+            background: #f0f4ff;
+            border-left: 4px solid #667eea;
+            padding: 12px;
+            margin-top: 20px;
+            border-radius: 5px;
+            font-size: 12px;
+            color: #555;
+        }
+
+        .info-box strong {
+            color: #667eea;
+        }
     </style>
 </head>
 <body>
-    <div class="panel">
-        <h1 style="margin-top:0;">[ AUTH-BOMBER v3.0 ]</h1>
-        <p>HEDEF TELEFON NUMARASINI GİRİN</p>
-        <input type="text" id="tel" placeholder="+905XXXXXXXXX">
-        <br>
-        <button onclick="atesle()">Saldırıyı Başlat</button>
-        <div id="log">>> Sistem Beklemede...</div>
+    <div class="container">
+        <div class="header">
+            <div class="icon">📱</div>
+            <h1>SMS Gönderici</h1>
+            <p>Twilio API ile anında mesaj gönderin</p>
+        </div>
+
+        <form id="smsForm">
+            <div class="form-group">
+                <label for="phone">Telefon Numarası</label>
+                <input 
+                    type="tel" 
+                    id="phone" 
+                    placeholder="905551234567" 
+                    required
+                    pattern="^\d{10,15}$"
+                    title="Lütfen geçerli bir telefon numarası girin (örn: 905551234567)"
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="workerUrl">Cloudflare Worker URL</label>
+                <input 
+                    type="url" 
+                    id="workerUrl" 
+                    placeholder="https://worker-adi.workers.dev" 
+                    required
+                    title="Cloudflare Worker URL'nizi girin"
+                >
+            </div>
+
+            <button type="submit" class="btn" id="submitBtn">
+                📨 SMS Gönder
+            </button>
+        </form>
+
+        <div id="messageBox" class="message"></div>
+
+        <div class="info-box">
+            <strong>💡 Bilgi:</strong> Twilio Trial hesabında sadece doğrulanmış numaralara SMS gönderebilirsiniz. Numaranızı Twilio panelinde "Verified Caller IDs" bölümüne eklemeyi unutmayın.
+        </div>
     </div>
 
     <script>
-        async function atesle() {
-            const no = document.getElementById('tel').value;
-            const log = document.getElementById('log');
-            if(no.length < 10) { alert("Numara Eksik!"); return; }
+        const form = document.getElementById('smsForm');
+        const phoneInput = document.getElementById('phone');
+        const workerUrlInput = document.getElementById('workerUrl');
+        const submitBtn = document.getElementById('submitBtn');
+        const messageBox = document.getElementById('messageBox');
 
-            log.innerHTML = `<p class="red">>> SALDIRI BAŞLATILDI: ${no}</p>`;
-            
-            // BURAYA KENDI WORKER URL'NI YAPIŞTIR
-            const worker_url = "https://SENIN_WORKER_URLN.workers.dev?numara=" + no;
-
-            const platformlar = ["WhatsApp", "Google", "Facebook", "Telegram", "Instagram", "Getir", "Trendyol", "Binance", "Netflix", "Papara"];
-            
-            for(let p of platformlar) {
-                log.innerHTML += `<p>>> ${p} vektörü tetiklendi...</p>`;
-                log.scrollTop = log.scrollHeight;
-                fetch(worker_url).catch(() => {}); // API'yi tetikle
-                await new Promise(r => setTimeout(r, 500)); // 0.5 saniye bekle (Gerçekçi görünmesi için)
+        // LocalStorage'dan kayıtlı URL varsa yükle
+        window.addEventListener('load', () => {
+            const savedUrl = localStorage.getItem('workerUrl');
+            if (savedUrl) {
+                workerUrlInput.value = savedUrl;
             }
-            log.innerHTML += `<p style="color:white;">>> İŞLEM TAMAMLANDI. Tüm paketler gönderildi.</p>`;
+        });
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const phone = phoneInput.value.trim();
+            const workerUrl = workerUrlInput.value.trim();
+
+            // URL'yi kaydet
+            localStorage.setItem('workerUrl', workerUrl);
+
+            // Loading durumu
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span class="spinner"></span> Gönderiliyor...';
+            messageBox.classList.remove('show', 'success', 'error');
+
+            try {
+                // Cloudflare Worker'a istek gönder
+                const response = await fetch(`${workerUrl}?numara=${phone}`, {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.status === 'success') {
+                    showMessage('success', `✅ ${data.message} (SID: ${data.sid || 'N/A'})`);
+                    phoneInput.value = '';
+                } else {
+                    showMessage('error', `❌ Hata: ${data.message || 'Bilinmeyen hata'}`);
+                }
+
+            } catch (error) {
+                showMessage('error', `❌ Bağlantı hatası: ${error.message}`);
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '📨 SMS Gönder';
+            }
+        });
+
+        function showMessage(type, text) {
+            messageBox.className = `message ${type} show`;
+            messageBox.textContent = text;
+            
+            // 5 saniye sonra mesajı gizle
+            setTimeout(() => {
+                messageBox.classList.remove('show');
+            }, 5000);
         }
+
+        // Enter tuşu ile gönderme
+        phoneInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                form.dispatchEvent(new Event('submit'));
+            }
+        });
     </script>
 </body>
 </html>
