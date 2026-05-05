@@ -5,14 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Twilio SMS Gönderici</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             display: flex;
@@ -20,41 +15,19 @@
             align-items: center;
             padding: 20px;
         }
-
         .container {
             background: white;
             border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
             padding: 40px;
             width: 100%;
             max-width: 450px;
         }
-
-        .header {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-
-        .header h1 {
-            color: #333;
-            font-size: 28px;
-            margin-bottom: 10px;
-        }
-
-        .header p {
-            color: #666;
-            font-size: 14px;
-        }
-
-        .icon {
-            font-size: 48px;
-            margin-bottom: 15px;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
+        .header { text-align: center; margin-bottom: 30px; }
+        .header h1 { color: #333; font-size: 28px; margin-bottom: 10px; }
+        .header p { color: #666; font-size: 14px; }
+        .icon { font-size: 48px; margin-bottom: 15px; }
+        .form-group { margin-bottom: 20px; }
         label {
             display: block;
             color: #555;
@@ -62,7 +35,6 @@
             font-weight: 600;
             margin-bottom: 8px;
         }
-
         input {
             width: 100%;
             padding: 15px;
@@ -72,16 +44,11 @@
             transition: all 0.3s;
             outline: none;
         }
-
         input:focus {
             border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            box-shadow: 0 0 0 3px rgba(102,126,234,0.1);
         }
-
-        input::placeholder {
-            color: #aaa;
-        }
-
+        input::placeholder { color: #aaa; }
         .btn {
             width: 100%;
             padding: 16px;
@@ -95,22 +62,15 @@
             transition: all 0.3s;
             margin-top: 10px;
         }
-
         .btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+            box-shadow: 0 10px 20px rgba(102,126,234,0.3);
         }
-
-        .btn:active {
-            transform: translateY(0);
-        }
-
         .btn:disabled {
             opacity: 0.6;
             cursor: not-allowed;
             transform: none;
         }
-
         .message {
             margin-top: 20px;
             padding: 15px;
@@ -119,50 +79,33 @@
             display: none;
             animation: slideIn 0.3s ease;
         }
-
         .message.success {
             background: #d4edda;
             color: #155724;
             border: 1px solid #c3e6cb;
         }
-
         .message.error {
             background: #f8d7da;
             color: #721c24;
             border: 1px solid #f5c6cb;
         }
-
-        .message.show {
-            display: block;
-        }
-
+        .message.show { display: block; }
         .spinner {
             display: inline-block;
             width: 20px;
             height: 20px;
-            border: 3px solid rgba(255, 255, 255, 0.3);
+            border: 3px solid rgba(255,255,255,0.3);
             border-radius: 50%;
             border-top-color: white;
             animation: spin 0.8s linear infinite;
             margin-right: 8px;
             vertical-align: middle;
         }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
+        @keyframes spin { to { transform: rotate(360deg); } }
         @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateY(-10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
-
         .info-box {
             background: #f0f4ff;
             border-left: 4px solid #667eea;
@@ -172,10 +115,7 @@
             font-size: 12px;
             color: #555;
         }
-
-        .info-box strong {
-            color: #667eea;
-        }
+        .info-box strong { color: #667eea; }
     </style>
 </head>
 <body>
@@ -195,18 +135,7 @@
                     placeholder="905551234567" 
                     required
                     pattern="^\d{10,15}$"
-                    title="Lütfen geçerli bir telefon numarası girin (örn: 905551234567)"
-                >
-            </div>
-
-            <div class="form-group">
-                <label for="workerUrl">Cloudflare Worker URL</label>
-                <input 
-                    type="url" 
-                    id="workerUrl" 
-                    placeholder="https://worker-adi.workers.dev" 
-                    required
-                    title="Cloudflare Worker URL'nizi girin"
+                    title="Lütfen geçerli bir telefon numarası girin"
                 >
             </div>
 
@@ -223,41 +152,26 @@
     </div>
 
     <script>
+        // ✅ SİZİN WORKER URL'NİZ
+        const WORKER_URL = 'https://empty-firefly-af53.alyux.workers.dev';
+
         const form = document.getElementById('smsForm');
         const phoneInput = document.getElementById('phone');
-        const workerUrlInput = document.getElementById('workerUrl');
         const submitBtn = document.getElementById('submitBtn');
         const messageBox = document.getElementById('messageBox');
 
-        // LocalStorage'dan kayıtlı URL varsa yükle
-        window.addEventListener('load', () => {
-            const savedUrl = localStorage.getItem('workerUrl');
-            if (savedUrl) {
-                workerUrlInput.value = savedUrl;
-            }
-        });
-
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
-
             const phone = phoneInput.value.trim();
-            const workerUrl = workerUrlInput.value.trim();
 
-            // URL'yi kaydet
-            localStorage.setItem('workerUrl', workerUrl);
-
-            // Loading durumu
             submitBtn.disabled = true;
             submitBtn.innerHTML = '<span class="spinner"></span> Gönderiliyor...';
             messageBox.classList.remove('show', 'success', 'error');
 
             try {
-                // Cloudflare Worker'a istek gönder
-                const response = await fetch(`${workerUrl}?numara=${phone}`, {
+                const response = await fetch(`${WORKER_URL}?numara=${phone}`, {
                     method: 'GET',
-                    headers: {
-                        'Accept': 'application/json'
-                    }
+                    headers: { 'Accept': 'application/json' }
                 });
 
                 const data = await response.json();
@@ -268,7 +182,6 @@
                 } else {
                     showMessage('error', `❌ Hata: ${data.message || 'Bilinmeyen hata'}`);
                 }
-
             } catch (error) {
                 showMessage('error', `❌ Bağlantı hatası: ${error.message}`);
             } finally {
@@ -280,18 +193,11 @@
         function showMessage(type, text) {
             messageBox.className = `message ${type} show`;
             messageBox.textContent = text;
-            
-            // 5 saniye sonra mesajı gizle
-            setTimeout(() => {
-                messageBox.classList.remove('show');
-            }, 5000);
+            setTimeout(() => messageBox.classList.remove('show'), 5000);
         }
 
-        // Enter tuşu ile gönderme
         phoneInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                form.dispatchEvent(new Event('submit'));
-            }
+            if (e.key === 'Enter') form.dispatchEvent(new Event('submit'));
         });
     </script>
 </body>
